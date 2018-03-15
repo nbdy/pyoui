@@ -19,5 +19,12 @@ def listdir_execute(d, c):
         c(csv_file)
 
 
+def generate_keys(keys):
+    _k = []
+    for k in keys:
+        _k.append(k.lower().replace(' ', '_'))
+    return _k
+
+
 if __name__ == '__main__':
     print "don't execute this script directly"
