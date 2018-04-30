@@ -13,7 +13,7 @@ def _help():
     print "optional:"
     print "\t-d\t--dump\t\tdownload csv's from ieee.org"
     print "\t-dd\t--directory\tdirectory to r/w csv's from/to"
-    print "\t-db\t--dbms\t\tsqlite/mongodb"
+    print "\t-db\t--dbms\t\tsqlite/mongodb/redis"
     print "that's it"
     exit()
 
