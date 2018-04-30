@@ -1,7 +1,8 @@
 import json
-import progressbar
-import redis
 
+import progressbar
+
+import redis
 from helper import read_csv_2_list, listdir_execute
 
 

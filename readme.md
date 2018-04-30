@@ -1,1 +1,1 @@
-quick and dirty ieee oui csv to mongodb collections
+quick and dirty ieee oui csv to database
