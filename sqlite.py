@@ -1,5 +1,6 @@
-import progressbar
 import sqlite3
+
+import progressbar
 from jinja2 import Template
 
 from helper import read_csv_2_list, listdir_execute, generate_keys
