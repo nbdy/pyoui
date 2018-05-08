@@ -22,7 +22,7 @@ def process_row(row, r):
 
 def csv_2_redis(csv_file):
     rows = read_csv_2_list(csv_file)
-    r = redis.StrictRedis(host='127.0.0.1', port=6379, db=0)
+    r = redis.Redis(host='127.0.0.1', port=6379, db=0)
     if not PROGRESSBAR_DISABLED:
         bar = progressbar.ProgressBar()
         for row in bar(rows):
