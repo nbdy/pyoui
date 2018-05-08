@@ -28,7 +28,7 @@ def csv_2_mongodb(csv_file):
     db = mc.get_database("oui")
     cl = db.get_collection(col)
     print "inserting", len(rows), "identifiers into", col
-    if PROGRESSBAR_DISABLED:
+    if not PROGRESSBAR_DISABLED:
         bar = progressbar.ProgressBar()
         for row in bar(rows):
             process_row(row, cl)
