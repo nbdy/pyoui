@@ -4,7 +4,7 @@ from os.path import isdir
 
 import dump
 import mongodb
-import redis
+import redisInserter
 import sqlite
 
 
@@ -45,4 +45,4 @@ if args["dbms"] == "mongodb":
 elif args["dbms"] == "sqlite":
     sqlite.dir_2_sqlite(args["directory"])
 elif args["dbms"] == "redis":
-    redis.dir_2_redis(args["directory"])
+    redisInserter.dir_2_redis(args["directory"])
