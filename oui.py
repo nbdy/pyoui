@@ -3,9 +3,9 @@ from sys import argv
 from os.path import isdir
 
 import dump
-import mongodb
+import mongodbInserter
 import redisInserter
-import sqlite
+import sqliteInserter
 
 
 def _help():
@@ -41,8 +41,8 @@ if args["dump"]:
     dump.dump(args["directory"])
 
 if args["dbms"] == "mongodb":
-    mongodb.dir_2_mongodb(args["directory"])
+    mongodbInserter.dir_2_mongodb(args["directory"])
 elif args["dbms"] == "sqlite":
-    sqlite.dir_2_sqlite(args["directory"])
+    sqliteInserter.dir_2_sqlite(args["directory"])
 elif args["dbms"] == "redis":
     redisInserter.dir_2_redis(args["directory"])
