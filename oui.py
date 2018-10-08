@@ -1,61 +1,96 @@
-import urllib
-from os.path import isfile, isdir
-from os import makedirs, listdir
-import csv
-import pymongo
-import progressbar
-
-URLS = [
-    "https://standards.ieee.org/develop/regauth/oui/oui.csv",
-    "https://standards.ieee.org/develop/regauth/oui28/mam.csv",
-    "https://standards.ieee.org/develop/regauth/oui36/oui36.csv",
-    "https://standards.ieee.org/develop/regauth/cid/cid.csv",
-    "https://standards.ieee.org/develop/regauth/ethertype/eth.csv",
-    "https://standards.ieee.org/develop/regauth/manid/manid.csv",
-    "https://standards.ieee.org/develop/regauth/bopid/opid.csv",
-    "https://standards.ieee.org/develop/regauth/iab/iab.csv"
-]
-
-FILE_DIRECTORY = "csv/"
+import urllib2
+from os.path import isfile
 
 
-def load(url, csv_file):
-    if not isfile(csv_file):
-        try:
-            urllib.urlretrieve(url, csv_file)
-        except IOError as e:
-            print e.message
+class OuiEntries(object):
+    infile = None
+    entries = []
+
+    def __init__(self, **kwargs):
+        if "infile" in kwargs.keys():
+            self.infile = kwargs.get("infile")
+        else:
+            self.infile = "oui.txt"
+        self.entries = self.parse(self.infile)
+
+    @staticmethod
+    def parse(filename):
+        l = []
+        with open(filename) as i:
+            for _ in i:
+                if "(hex)" in _:
+                    l.append(OuiEntry(address=_[0:8], company=_[18:]))
+        return l
+
+    def lookup(self, address):
+        for e in self.entries:
+            if address.startswith(e.address):
+                return SearchResult(address=address, entry=e)
+        return None
+
+    def lookup_multiple(self, addresses):
+        r = []
+        for e in self.entries:
+            for address in addresses:
+                if address.startswith(e.address):
+                    r.append(SearchResult(address=address, entry=e))
+        return r
 
 
-def csv_to_mongodb(csv_file):
-    col = csv_file.split(".")[0]
-    rows = []
-    with open(csv_file, 'rb') as c:
-        cr = csv.DictReader(c)
-        for row in cr:
-            rows.append(row)
+class SearchResult(object):
+    address = None
+    entry = None
 
-    mc = pymongo.MongoClient()
-    db = mc.get_database("oui")
-    db.drop_collection(col)
-    db.create_collection(col)
-    cl = db.get_collection(col)
-    print "inserting", len(rows), "identifiers into", col
-    bar = progressbar.ProgressBar()
-    for row in bar(rows):
-        cl.insert_one(row)
+    def __init__(self, **kwargs):
+        if "address" in kwargs.keys():
+            self.address = kwargs.get("address")
+        if "entry" in kwargs.keys():
+            self.entry = kwargs.get("entry")
 
 
-if not isdir(FILE_DIRECTORY):
-    makedirs(FILE_DIRECTORY)
+class OuiEntry(object):
+    address = None
+    company = None
 
-print "downloading", len(URLS), "urls."
-bar = progressbar.ProgressBar()
-for url in bar(URLS):
-    csv_file = FILE_DIRECTORY + url.split("/")[-1]
-    load(url, csv_file)
+    def __init__(self, **kwargs):
+        if "address" in kwargs.keys():
+            self.address = kwargs.get("address")
+            if "-" in self.address:
+                self.address = self.address.replace('-', ':')
+        if "company" in kwargs.keys():
+            self.company = kwargs.get("company")
 
-print "inserting", len(listdir(FILE_DIRECTORY)), "collections."
-for csv_file in listdir(FILE_DIRECTORY):
-    csv_file = FILE_DIRECTORY + csv_file
-    csv_to_mongodb(csv_file)
+
+class OUI(object):
+    oui_url = "http://standards-oui.ieee.org/oui.txt"
+    outfile = None
+    entries = None
+
+    def __init__(self, **kwargs):
+        if "oui_url" in kwargs.keys():
+            self.oui_url = kwargs.get("oui_url")
+        if "outfile" in kwargs.keys():
+            self.outfile = kwargs.get("outfile")
+        else:
+            self.outfile = "oui.txt"
+        if "entries" in kwargs.keys():
+            self.entries = kwargs.get("entries")
+
+    def load(self):
+        if not isfile(self.outfile):
+            print "downloading", self.oui_url, "to", self.outfile
+            with open(self.outfile, "w") as o:
+                o.write(urllib2.urlopen(self.oui_url).read())
+        else:
+            print "not downloading", self.oui_url
+            print self.outfile, "already exists"
+
+    def parse(self):
+        print "parsing", self.outfile
+        self.entries = OuiEntries(infile=self.outfile)
+
+
+if __name__ == '__main__':
+    o = OUI()
+    o.load()
+    o.parse()
