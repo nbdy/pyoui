@@ -1,48 +1,96 @@
-from sys import argv
-
-from os.path import isdir
-
-import dump
-import mongodbInserter
-import redisInserter
-import sqliteInserter
+import urllib2
+from os.path import isfile
 
 
-def _help():
-    print "usage: python oui.py [arguments]"
-    print "optional:"
-    print "\t-d\t--dump\t\tdownload csv's from ieee.org"
-    print "\t-dd\t--directory\tdirectory to r/w csv's from/to"
-    print "\t-db\t--dbms\t\tsqlite/mongodb/redis"
-    print "that's it"
-    exit()
+class OuiEntries(object):
+    infile = None
+    entries = []
+
+    def __init__(self, **kwargs):
+        if "infile" in kwargs.keys():
+            self.infile = kwargs.get("infile")
+        else:
+            self.infile = "oui.txt"
+        self.entries = self.parse(self.infile)
+
+    @staticmethod
+    def parse(filename):
+        l = []
+        with open(filename) as i:
+            for _ in i:
+                if "(hex)" in _:
+                    l.append(OuiEntry(address=_[0:8], company=_[18:]))
+        return l
+
+    def lookup(self, address):
+        for e in self.entries:
+            if address.startswith(e.address):
+                return SearchResult(address=address, entry=e)
+        return None
+
+    def lookup_multiple(self, addresses):
+        r = []
+        for e in self.entries:
+            for address in addresses:
+                if address.startswith(e.address):
+                    r.append(SearchResult(address=address, entry=e))
+        return r
 
 
-args = {
-    "dump": False,
-    "directory": "csv/",
-    "dbms": "sqlite"
-}
+class SearchResult(object):
+    address = None
+    entry = None
 
-i = 0
-while i < len(argv):
-    if argv[i] == "-d" or argv[i] == "--dump":
-        args["dump"] = True
-    elif argv[i] == "-dd" or argv[i] == "--directory":
-        args["directory"] = argv[i + 1]
-    elif argv[i] == "-db" or argv[i] == "--dbms":
-        args["dbms"] = argv[i + 1]
-    elif argv[i] == "-h" or argv[i] == "--help":
-        _help()
-    i += 1
+    def __init__(self, **kwargs):
+        if "address" in kwargs.keys():
+            self.address = kwargs.get("address")
+        if "entry" in kwargs.keys():
+            self.entry = kwargs.get("entry")
 
-args["dump"] = not isdir(args["directory"])
-if args["dump"]:
-    dump.dump(args["directory"])
 
-if args["dbms"] == "mongodb":
-    mongodbInserter.dir_2_mongodb(args["directory"])
-elif args["dbms"] == "sqlite":
-    sqliteInserter.dir_2_sqlite(args["directory"])
-elif args["dbms"] == "redis":
-    redisInserter.dir_2_redis(args["directory"])
+class OuiEntry(object):
+    address = None
+    company = None
+
+    def __init__(self, **kwargs):
+        if "address" in kwargs.keys():
+            self.address = kwargs.get("address")
+            if "-" in self.address:
+                self.address = self.address.replace('-', ':')
+        if "company" in kwargs.keys():
+            self.company = kwargs.get("company")
+
+
+class OUI(object):
+    oui_url = "http://standards-oui.ieee.org/oui.txt"
+    outfile = None
+    entries = None
+
+    def __init__(self, **kwargs):
+        if "oui_url" in kwargs.keys():
+            self.oui_url = kwargs.get("oui_url")
+        if "outfile" in kwargs.keys():
+            self.outfile = kwargs.get("outfile")
+        else:
+            self.outfile = "oui.txt"
+        if "entries" in kwargs.keys():
+            self.entries = kwargs.get("entries")
+
+    def load(self):
+        if not isfile(self.outfile):
+            print "downloading", self.oui_url, "to", self.outfile
+            with open(self.outfile, "w") as o:
+                o.write(urllib2.urlopen(self.oui_url).read())
+        else:
+            print "not downloading", self.oui_url
+            print self.outfile, "already exists"
+
+    def parse(self):
+        print "parsing", self.outfile
+        self.entries = OuiEntries(infile=self.outfile)
+
+
+if __name__ == '__main__':
+    o = OUI()
+    o.load()
+    o.parse()
