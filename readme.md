@@ -25,12 +25,16 @@ optional arguments:
 #### ... use by code:
 ```python
 from ouilookup import OUI
-oui = OUI("/tmp/oui.txt", True)
-entries = oui.parse()
-count = entries.size()
-m = entries.by_mac("00:00:00:FF:FF:FF")
-p = entries.by_prefix("DE:AD:BE")
-c = entries.by_company("national security")
+
+entries = OUI(debug=True).parse()
+print("entries:", entries.size())
+e = next(entries.by_company("national security"))
+print("company", e.company.__dict__, e.prefix)
+e = next(entries.by_prefix("00:22:72"))
+print("prefix", e.company.__dict__, e.prefix)
+e = next(entries.by_mac("BC:23:92:42:42:42"))
+print("mac", e.company.__dict__, e.prefix)
+
 ```
 
 ### other info:
