@@ -3,8 +3,32 @@ from loguru import logger as log
 from os.path import isfile
 
 
+class Company(object):
+    name: str = None
+    street: str = None
+    district: str = None
+    country: str = None
+
+    def __init__(self, name, street=None, district=None, country=None):
+        self.name = name
+        self.street = street
+        self.district = district
+        self.country = country
+
+
+class OuiEntry(object):
+    prefix: str = None
+    company: Company = None
+
+    def __init__(self, prefix: str, company: Company = None):
+        self.prefix = prefix
+        if "-" in self.prefix:
+            self.prefix = self.prefix.replace('-', ':')
+        self.company = company
+
+
 class OuiEntries(object):
-    entries = []
+    entries: list = []
 
     def __init__(self, infile):
         self.entries = self.parse(infile)
@@ -15,56 +39,57 @@ class OuiEntries(object):
             log.debug("parsing entries")
         lst = []
         with open(filename) as i:
+            c = -1
+            t = None
+            o = None
             for _ in i:
-                if "(hex)" in _:
-                    lst.append(OuiEntry(_[0:8], _[18:]))
+                if "(hex)" in _ and c == -1:
+                    c = 0
+                    t = OuiEntry(_[0:8])
+                    o = Company(_[18:])
+                if c == 2:
+                    o.street = _.strip()
+                elif c == 3:
+                    o.district = _.strip()
+                elif c == 4:
+                    o.country = _.strip()
+                    t.company = o
+                    c = 42
+                if c == 42:
+                    lst.append(t)
+                    c = -1
+                if c not in [-1, 42]:
+                    c += 1
         return lst
 
     def by_mac(self, mac: str):
         for e in self.entries:
-            if mac.startswith(e.address):
-                return e
-        return None
+            if mac.startswith(e.prefix):
+                yield e
 
     def by_prefix(self, prefix: str):
         for e in self.entries:
-            if e.address.startswith(prefix):
-                return e
-        return None
+            if e.prefix == prefix:
+                yield e
 
     def by_company(self, name: str):
         for e in self.entries:
-            if name.lower() in e.company.lower():
-                return e
-        return None
+            if name.lower() in e.company.name.lower():
+                yield e
 
-    def lookup_multiple(self, addresses):
-        r = []
+    def by_country_code(self, cc: str):
         for e in self.entries:
-            for address in addresses:
-                if address.startswith(e.address):
-                    r.append(e)
-        return r
+            if e.company.country == cc:
+                yield e
 
     def size(self):
         return len(self.entries)
 
 
-class OuiEntry(object):
-    address = None
-    company = None
-
-    def __init__(self, address, company):
-        self.address = address
-        if "-" in self.address:
-            self.address = self.address.replace('-', ':')
-        self.company = company
-
-
 class OUI(object):
-    oui_url = "http://standards-oui.ieee.org/oui.txt"
-    outfile = None
-    debug = False
+    oui_url: str = "http://standards-oui.ieee.org/oui.txt"
+    outfile: str = None
+    debug: bool = False
 
     def __init__(self, outfile="/tmp/oui.txt", debug=False):
         self.outfile = outfile
