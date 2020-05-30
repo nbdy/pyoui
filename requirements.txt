@@ -1,4 +1,2 @@
-Jinja2==2.8
-pymongo==3.6.0
-redis==2.10.6
-progressbar2==3.37.1
+requests
+loguru
