@@ -27,6 +27,7 @@ optional arguments:
 from ouilookup import OUI
 oui = OUI("/tmp/oui.txt", True)
 entries = oui.parse()
+count = entries.size()
 m = entries.by_mac("00:00:00:FF:FF:FF")
 p = entries.by_prefix("DE:AD:BE")
 c = entries.by_company("national security")
