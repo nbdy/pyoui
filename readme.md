@@ -1,13 +1,35 @@
 ## ouilookup
 ### how to..
+#### ... install:
+```shell script
+pip3 install git+https://github.com/smthnspcl/ouilookup
+```
+
 #### ... use by cli:
 ```shell script
+ouilookup --help
 
+usage: ouilookup [-h] [-o OUTFILE] [-d] [-p PREFIX] [-c COMPANY]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -o OUTFILE, --outfile OUTFILE
+                        oui file which will be downloaded and read.
+  -d, --debug           enable debugging
+  -p PREFIX, --prefix PREFIX
+                        search by mac prefix
+  -c COMPANY, --company COMPANY
+                        search by company name
 ```
 
 #### ... use by code:
 ```python
-
+from ouilookup import OUI
+oui = OUI("/tmp/oui.txt", True)
+entries = oui.parse()
+m = entries.by_mac("00:00:00:FF:FF:FF")
+p = entries.by_prefix("DE:AD:BE")
+c = entries.by_company("national security")
 ```
 
 ### other info:

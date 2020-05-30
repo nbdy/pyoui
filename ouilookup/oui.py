@@ -24,15 +24,15 @@ class OuiEntries(object):
                 return SearchResult(mac, e)
         return None
 
-    def by_prefix(self, prefix):
+    def by_prefix(self, prefix: str):
         for e in self.entries:
             if prefix.startswith(e.address):
                 return SearchResult(prefix, e)
         return None
 
-    def by_company(self, name):
+    def by_company(self, name: str):
         for e in self.entries:
-            if name in e.company:
+            if name.lower() in e.company.lower():
                 return SearchResult(e.address, e)
         return None
 
@@ -41,7 +41,7 @@ class OuiEntries(object):
         for e in self.entries:
             for address in addresses:
                 if address.startswith(e.address):
-                    r.append(SearchResult(address=address, entry=e))
+                    r.append(SearchResult(address, e))
         return r
 
 
