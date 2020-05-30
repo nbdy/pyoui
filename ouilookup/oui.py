@@ -10,30 +10,32 @@ class OuiEntries(object):
         self.entries = self.parse(infile)
 
     @staticmethod
-    def parse(filename):
+    def parse(filename, debug=False):
+        if debug:
+            log.debug("parsing entries")
         lst = []
         with open(filename) as i:
             for _ in i:
                 if "(hex)" in _:
-                    lst.append(OuiEntry(address=_[0:8], company=_[18:]))
+                    lst.append(OuiEntry(_[0:8], _[18:]))
         return lst
 
     def by_mac(self, mac: str):
         for e in self.entries:
             if mac.startswith(e.address):
-                return SearchResult(mac, e)
+                return e
         return None
 
     def by_prefix(self, prefix: str):
         for e in self.entries:
-            if prefix.startswith(e.address):
-                return SearchResult(prefix, e)
+            if e.address.startswith(prefix):
+                return e
         return None
 
     def by_company(self, name: str):
         for e in self.entries:
             if name.lower() in e.company.lower():
-                return SearchResult(e.address, e)
+                return e
         return None
 
     def lookup_multiple(self, addresses):
@@ -41,17 +43,11 @@ class OuiEntries(object):
         for e in self.entries:
             for address in addresses:
                 if address.startswith(e.address):
-                    r.append(SearchResult(address, e))
+                    r.append(e)
         return r
 
-
-class SearchResult(object):
-    address = None
-    entry = None
-
-    def __init__(self, address, entry):
-        self.address = address
-        self.entry = entry
+    def size(self):
+        return len(self.entries)
 
 
 class OuiEntry(object):
