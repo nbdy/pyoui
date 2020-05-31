@@ -1,4 +1,4 @@
-from ouilookup import OUI
+from pyoui import OUI
 
 entries = OUI(debug=True).parse()
 
