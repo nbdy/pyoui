@@ -1,8 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    long_description_content_type="text/markdown",
-    long_description=open("README.md", "r").read(),
+    long_description=open("README.rst", "r").read(),
     name="pyoui",
     version="0.42",
     description="lookup the ieee's oui table by mac, mac prefix, org name or country",
