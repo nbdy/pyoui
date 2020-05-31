@@ -2,6 +2,8 @@
 ### how to..
 #### ... install:
 ```shell script
+pip3 install pyoui
+# master branch should be stable as well
 pip3 install git+https://github.com/smthnspcl/pyoui
 ```
 
