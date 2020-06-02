@@ -1,6 +1,7 @@
 from requests import get
 from loguru import logger as log
 from os.path import isfile
+from pycountry import countries
 
 
 class Company(object):
@@ -77,7 +78,14 @@ class OuiEntries(object):
             if name.lower() in e.company.name.lower():
                 yield e
 
+    def by_country_name(self, name: str):
+        return self.by_country_code(countries.search_fuzzy(name)[0].alpha_2)
+
     def by_country_code(self, cc: str):
+        if cc is None:
+            return None
+        if len(cc) != 2:
+            return None  # country code needs to be a length of two
         for e in self.entries:
             if e.company.country == cc:
                 yield e
