@@ -16,3 +16,7 @@ print("mac", e.company.__dict__, e.prefix)
 e = list(entries.by_country_code("US"))
 print("length:", len(e))
 print("first item:", e[0].prefix, e[0].company.__dict__)
+
+ae = list(entries.by_country_name("United States"))
+print("by country code length:", len(e), " | by name length:", len(ae))
+print("lengths should be equal")
