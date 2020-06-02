@@ -4,7 +4,7 @@ from os.path import isfile
 from pycountry import countries
 
 
-class Company(object):
+class Organization(object):
     name: str = None
     street: str = None
     district: str = None
@@ -19,13 +19,13 @@ class Company(object):
 
 class OuiEntry(object):
     prefix: str = None
-    company: Company = None
+    organization: Organization = None
 
-    def __init__(self, prefix: str, company: Company = None):
+    def __init__(self, prefix: str, organization: Organization = None):
         self.prefix = prefix
         if "-" in self.prefix:
             self.prefix = self.prefix.replace('-', ':')
-        self.company = company
+        self.organization = organization
 
 
 class OuiEntries(object):
@@ -47,14 +47,14 @@ class OuiEntries(object):
                 if "(hex)" in _ and c == -1:
                     c = 0
                     t = OuiEntry(_[0:8])
-                    o = Company(_[18:])
+                    o = Organization(_[18:])
                 if c == 2:
                     o.street = _.strip()
                 elif c == 3:
                     o.district = _.strip()
                 elif c == 4:
                     o.country = _.strip()
-                    t.company = o
+                    t.organization = o
                     c = 42
                 if c == 42:
                     lst.append(t)
@@ -73,9 +73,9 @@ class OuiEntries(object):
             if e.prefix == prefix:
                 yield e
 
-    def by_company(self, name: str):
+    def by_organization(self, name: str):
         for e in self.entries:
-            if name.lower() in e.company.name.lower():
+            if name.lower() in e.organization.name.lower():
                 yield e
 
     def by_country_name(self, name: str):
@@ -87,7 +87,7 @@ class OuiEntries(object):
         if len(cc) != 2:
             return None  # country code needs to be a length of two
         for e in self.entries:
-            if e.company.country == cc:
+            if e.organization.country == cc:
                 yield e
 
     def size(self):
