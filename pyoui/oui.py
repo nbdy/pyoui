@@ -2,6 +2,7 @@ from requests import get
 from loguru import logger as log
 from os.path import isfile
 from pycountry import countries
+from typing import List, Iterator
 
 
 class Organization(object):
@@ -35,7 +36,7 @@ class OuiEntries(object):
         self.entries = self.parse(infile)
 
     @staticmethod
-    def parse(filename, debug=False):
+    def parse(filename, debug=False) -> List[OuiEntry]:
         if debug:
             log.debug("parsing entries")
         lst = []
@@ -47,7 +48,7 @@ class OuiEntries(object):
                 if "(hex)" in _ and c == -1:
                     c = 0
                     t = OuiEntry(_[0:8])
-                    o = Organization(_[18:])
+                    o = Organization(_[18:].strip("\n"))
                 if c == 2:
                     o.street = _.strip()
                 elif c == 3:
@@ -63,25 +64,28 @@ class OuiEntries(object):
                     c += 1
         return lst
 
-    def by_mac(self, mac: str):
+    def by_mac(self, mac: str) -> Iterator[OuiEntry]:
         for e in self.entries:
             if mac.startswith(e.prefix):
                 yield e
 
-    def by_prefix(self, prefix: str):
+    def by_prefix(self, prefix: str) -> Iterator[OuiEntry]:
         for e in self.entries:
             if e.prefix == prefix:
                 yield e
 
-    def by_organization(self, name: str):
+    def by_organization(self, name: str) -> Iterator[OuiEntry]:
         for e in self.entries:
             if name.lower() in e.organization.name.lower():
                 yield e
 
-    def by_country_name(self, name: str):
-        return self.by_country_code(countries.search_fuzzy(name)[0].alpha_2)
+    def by_country_name(self, name: str) -> Iterator[OuiEntry]:
+        try:
+            return self.by_country_code(countries.search_fuzzy(name)[0].alpha_2)
+        except LookupError:
+            return []
 
-    def by_country_code(self, cc: str):
+    def by_country_code(self, cc: str) -> Iterator[OuiEntry]:
         if cc is None:
             return None
         if len(cc) != 2:
@@ -90,7 +94,7 @@ class OuiEntries(object):
             if e.organization.country == cc:
                 yield e
 
-    def size(self):
+    def size(self) -> int:
         return len(self.entries)
 
 
