@@ -34,4 +34,3 @@ def test_by_country_name():
     assert len(list(entries.by_country_name("United States"))) > 0
     assert len(list(entries.by_country_name("Germany"))) > 0
     assert len(list(entries.by_country_name("XXX"))) == 0
-

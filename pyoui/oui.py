@@ -1,6 +1,7 @@
 from requests import get
 from loguru import logger as log
-from os.path import isfile
+from os.path import isfile, join
+from tempfile import gettempdir
 from pycountry import countries
 from typing import List, Iterator
 
@@ -103,7 +104,7 @@ class OUI(object):
     outfile: str = None
     debug: bool = False
 
-    def __init__(self, outfile="/tmp/oui.txt", debug=False):
+    def __init__(self, outfile=join(gettempdir(), "oui.txt"), debug=False):
         self.outfile = outfile
         self.debug = debug
         self.load()
