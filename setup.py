@@ -1,9 +1,9 @@
 from setuptools import setup, find_packages
 
 setup(
-    long_description=open("README.rst", "r").read(),
+    long_description=open("README.md", "r").read(),
     name="pyoui",
-    version="0.53",
+    version="0.54",
     description="lookup the ieee's oui table by mac, mac prefix, org name or country",
     author="Pascal Eberlein",
     author_email="pascal@eberlein.io",
@@ -19,5 +19,6 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     entry_points={'console_scripts': ['pyoui = pyoui.__main__:main']},
-    install_requires=open("requirements.txt").readlines()
+    install_requires=open("requirements.txt").readlines(),
+    long_description_content_type="text/markdown"
 )
