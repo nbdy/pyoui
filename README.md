@@ -1,4 +1,5 @@
 ## pyoui
+[![CodeFactor](https://www.codefactor.io/repository/github/nbdy/pyoui/badge/master)](https://www.codefactor.io/repository/github/nbdy/pyoui/overview/master)
 ### how to..
 #### ... install:
 ```shell script

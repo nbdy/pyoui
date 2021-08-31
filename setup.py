@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     long_description=open("README.md", "r").read(),
     name="pyoui",
-    version="0.54",
+    version="0.55",
     description="lookup the ieee's oui table by mac, mac prefix, org name or country",
     author="Pascal Eberlein",
     author_email="pascal@eberlein.io",
