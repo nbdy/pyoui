@@ -7,7 +7,8 @@ from loguru import logger as log
 
 def main():
     ap = ArgumentParser()
-    ap.add_argument("-o", "--outfile", default=join(gettempdir(), "oui.txt"), help="oui file which will be downloaded and read.")
+    ap.add_argument("-o", "--outfile", default=join(gettempdir(), "oui.txt"),
+                    help="oui file which will be downloaded and read.")
     ap.add_argument("-d", "--debug", action="store_true", help="enable debugging")
     ap.add_argument("-p", "--prefix", help="search by mac prefix")
     ap.add_argument("-org", "--organization", help="search by organization name")
