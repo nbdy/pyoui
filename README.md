@@ -1,14 +1,19 @@
 ## pyoui
+
 [![CodeFactor](https://www.codefactor.io/repository/github/nbdy/pyoui/badge/master)](https://www.codefactor.io/repository/github/nbdy/pyoui/overview/master)
+
 ### how to..
+
 #### ... install:
+
 ```shell script
 pip3 install pyoui
 # master branch should be stable as well
-pip3 install git+https://github.com/smthnspcl/pyoui
+pip3 install git+https://github.com/nbdy/pyoui
 ```
 
 #### ... use by cli:
+
 ```shell script
 pyoui --help
 
@@ -26,6 +31,7 @@ optional arguments:
 ```
 
 #### ... use by code:
+
 ```python
 from pyoui import OUI
 
@@ -49,5 +55,4 @@ print("first item:", e[0].prefix, e[0].organization.__dict__)
 ae = list(entries.by_country_name("United States"))
 print("by country code length:", len(e), " | by name length:", len(ae))
 print("lengths should be equal")
-
 ```
