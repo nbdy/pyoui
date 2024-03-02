@@ -7,7 +7,7 @@ setup(
     description="lookup the ieee's oui table by mac, mac prefix, org name or country",
     author="Pascal Eberlein",
     author_email="pascal@eberlein.io",
-    url="https://github.com/smthnspcl/pyoui",
+    url="https://github.com/nbdy/pyoui",
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
