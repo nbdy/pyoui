@@ -4,13 +4,13 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyoui"
-version = "1.0.0"
+version = "1.1.0"
 description = "Lookup the IEEE's OUI table by MAC, MAC prefix, organization name, or country"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 license = { file = "LICENSE" }
 authors = [
-  { name = "Pascal Eberlein", email = "pascal@eberlein.io" },
+  { name = "nbdy", email = "me@nbdy.io" },
 ]
 keywords = ["oui", "mac", "lookup"]
 classifiers = [
@@ -25,9 +25,11 @@ classifiers = [
 
 # Runtime dependencies
 dependencies = [
-  "requests",
-  "loguru",
-  "pycountry",
+  "requests==2.32.5",
+  "loguru==0.7.3",
+  "pycountry==24.6.1",
+  "tqdm==4.67.1",
+  "rich==13.9.4",
 ]
 
 [project.urls]
@@ -38,11 +40,25 @@ Issues = "https://github.com/nbdy/pyoui/issues"
 pyoui = "pyoui.__main__:main"
 
 [project.optional-dependencies]
-dev = ["pytest"]
+dev = ["pytest==8.4.2", "ruff==0.7.0", "pre-commit==3.5.0"]
 
 [tool.uv]
-# Optional: declare a minimum uv version and dev dependencies for contributors
 required-version = ">=0.4.0"
-dev-dependencies = [
-  "pytest",
+
+[dependency-groups]
+dev = [
+  "pytest==8.4.2",
+  "ruff==0.7.0",
+  "pre-commit==3.5.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = [
+  "E", "F", "I", "N", "W", "D",
+  "E501", "D401","D100", "D104",
+  "D101", "D102", "D103", "D107"
 ]
