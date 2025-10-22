@@ -20,16 +20,25 @@ def main():
     if a.prefix is not None:
         r = oui_entries.by_prefix(a.prefix)
     elif a.organization is not None:
-        r = oui_entries.by_company(a.organization)
+        r = oui_entries.by_organization(a.organization)
     elif a.country_code is not None:
         r = oui_entries.by_country_code(a.country_code)
     elif a.country_name is not None:
         r = oui_entries.by_country_name(a.country_name)
 
     if r is None:
-        log.error("could not find entry!")
+        log.error("no search parameter provided")
     else:
-        log.info(r.__dict__)
+        count = 0
+        for e in r:
+            try:
+                org = e.organization.__dict__ if hasattr(e, 'organization') and e.organization else {}
+                log.info(f"{e.prefix} -> {org}")
+            except Exception as ex:
+                log.error(f"error printing entry: {ex}")
+            count += 1
+        if count == 0:
+            log.error("could not find entry!")
 
 
 if __name__ == '__main__':
