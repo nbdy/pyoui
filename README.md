@@ -1,101 +1,112 @@
-# pyoui
+# 🛡️ pyoui
 
 [![CodeFactor](https://www.codefactor.io/repository/github/nbdy/pyoui/badge/master)](https://www.codefactor.io/repository/github/nbdy/pyoui/overview/master)
 
-## Installation
+**pyoui** is a lightweight Python utility to lookup and parse the IEEE OUI (Organizationally Unique Identifier) database. Easily identify network device vendors by their MAC addresses or search through the IEEE registry.
 
-- Pip (users):
-  ```bash
-  pip install pyoui
-  ```
-- uv (inside your project):
-  ```bash
-  uv add pyoui
-  ```
-- Install from the main branch:
-  ```bash
-  pip install git+https://github.com/nbdy/pyoui
-  ```
+## ✨ Features
 
-## CLI usage
+- 🔍 **Flexible Search:** Lookup by MAC address, prefix, organization name, or country.
+- 🚀 **CLI & Library:** Use it as a standalone tool or a Python package.
+- 📅 **Auto-Managed Data:** Automatically downloads and caches the latest IEEE OUI data.
+- 🛠️ **Modern Tooling:** Built with `uv`, `ruff`, and type hints.
 
-Run:
+## 🚀 Installation
+
+### For Users
 ```bash
-pyoui --help
+pip install pyoui
 ```
 
-Options:
-- -o, --outfile: file path for the downloaded IEEE OUI text file
-- -d, --debug: enable debug logging
-- -p, --prefix: search by MAC prefix (e.g., 00:22:72)
-- -org, --organization: search by organization name
-- -cc, --country-code: search by 2-letter country code (e.g., US)
-- -cn, --country-name: search by country name (e.g., United States)
-
-Examples:
+### For Developers (using `uv`)
 ```bash
-pyoui -p 00:22:72
-pyoui -org "national security"
-pyoui -cc US
+uv add pyoui
 ```
 
-#### ... use by code:
+### From Source
+```bash
+pip install git+https://github.com/nbdy/pyoui
+```
+
+## 📖 Usage
+
+### Command Line Interface
+
+Quickly search the OUI database from your terminal:
+
+```bash
+# Search by MAC prefix
+pyoui --prefix 00:22:72
+
+# Search by organization name
+pyoui --organization "national security"
+
+# Search by country code (ISO 3166-1 alpha-2)
+pyoui --country-code US
+```
+
+Run `pyoui --help` to see all available flags and options (like output formats: JSON, CSV, Table).
+
+### Python API
+
+Integrate `pyoui` into your own scripts:
 
 ```python
 from pyoui import OUI
 
-entries = OUI(debug=True).parse()
+# Initialize and parse the OUI data
+# It will download the database if it doesn't exist or is older than 30 days
+entries = OUI().parse()
 
-print("entries:", entries.size())
+# Lookup by MAC address
+entry = next(entries.by_mac("BC:23:92:42:42:42"))
+print(f"Vendor: {entry.organization.name}")
 
-e = next(entries.by_organization("national security"))
-print("organization", e.organization.__dict__, e.prefix)
+# Search by organization name
+for entry in entries.by_organization("national security"):
+    print(f"{entry.prefix} -> {entry.organization.name}")
 
-e = next(entries.by_prefix("00:22:72"))
-print("prefix", e.organization.__dict__, e.prefix)
-
-e = next(entries.by_mac("BC:23:92:42:42:42"))
-print("mac", e.organization.__dict__, e.prefix)
-
-e = list(entries.by_country_code("US"))
-print("length:", len(e))
-print("first item:", e[0].prefix, e[0].organization.__dict__)
-
-ae = list(entries.by_country_name("United States"))
-print("by country code length:", len(e), " | by name length:", len(ae))
-print("lengths should be equal")
+# Filter by country
+us_entries = list(entries.by_country_code("US"))
+print(f"Found {len(us_entries)} US-based organizations.")
 ```
 
+## 🧑‍💻 Development
 
-## Development
+This project uses [uv](https://github.com/astral-sh/uv) for dependency management.
 
-This project uses uv for dependency management and builds.
+### Setup
 
-- Create and sync a virtual environment:
-  ```bash
-  uv venv
-  uv sync
-  ```
-- Run tests:
-  ```bash
-  uv run pytest
-  ```
-- Build the package (sdist and wheel):
-  ```bash
-  uv build
-  ```
-- Run the CLI without installing:
-  ```bash
-  uv run pyoui --help
-  ```
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/nbdy/pyoui.git
+   cd pyoui
+   ```
 
-## Publishing
+2. **Sync dependencies:**
+   ```bash
+   uv sync
+   ```
 
-Releases are published automatically to PyPI via GitHub Actions using PyPI Trusted Publishing.
+3. **Install pre-commit hooks:**
+   We use `pre-commit` to ensure code quality.
+   ```bash
+   uv run pre-commit install
+   ```
 
-- Create a GitHub release (or trigger the workflow manually). Upon a published release, the workflow will:
-  - Build the package with `uv build`.
-  - Upload the artifacts to PyPI using `pypa/gh-action-pypi-publish` with OpenID Connect (OIDC).
+### Common Tasks
 
-To enable trusted publishing, ensure the PyPI project is configured to trust this GitHub repository.
-See: https://github.com/pypa/gh-action-pypi-publish
+- **Run Tests:** `uv run pytest`
+- **Lint Code:** `uv run ruff check .`
+- **Build Package:** `uv build`
+- **Run CLI locally:** `uv run pyoui --help`
+
+## 🚀 Publishing
+
+Releases are published automatically to PyPI via GitHub Actions using Trusted Publishing.
+
+1. Create a GitHub release.
+2. The workflow will build and upload the package to PyPI.
+
+---
+Made with ❤️ by [nbdy](https://github.com/nbdy)
