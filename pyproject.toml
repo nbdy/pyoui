@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyoui"
-version = "1.0.0"
+version = "1.0.1"
 description = "Lookup the IEEE's OUI table by MAC, MAC prefix, organization name, or country"
 readme = "README.md"
 requires-python = ">=3.7"
@@ -25,9 +25,9 @@ classifiers = [
 
 # Runtime dependencies
 dependencies = [
-  "requests",
-  "loguru",
-  "pycountry",
+  "requests==2.32.5",
+  "loguru==0.7.3",
+  "pycountry==24.6.1",
 ]
 
 [project.urls]
@@ -38,11 +38,11 @@ Issues = "https://github.com/nbdy/pyoui/issues"
 pyoui = "pyoui.__main__:main"
 
 [project.optional-dependencies]
-dev = ["pytest"]
+dev = ["pytest==8.4.2"]
 
 [tool.uv]
 # Optional: declare a minimum uv version and dev dependencies for contributors
 required-version = ">=0.4.0"
 dev-dependencies = [
-  "pytest",
+  "pytest==8.4.2",
 ]
