@@ -24,38 +24,39 @@ class OuiEntry(object):
     organization: Organization = None
 
     def __init__(self, prefix: str, organization: Organization = None):
-        self.prefix = prefix
-        if "-" in self.prefix:
-            self.prefix = self.prefix.replace('-', ':')
+        # normalize prefix once
+        p = prefix.replace('-', ':').upper() if prefix else prefix
+        self.prefix = p
         self.organization = organization
 
 
 class OuiEntries(object):
-    entries: list = []
-
     def __init__(self, infile):
-        self.entries = self.parse(infile)
+        self.entries: list[OuiEntry] = self.parse(infile)
 
     @staticmethod
     def parse(filename, debug=False) -> List[OuiEntry]:
         if debug:
             log.debug("parsing entries")
-        lst = []
-        with open(filename) as i:
+        lst: List[OuiEntry] = []
+        with open(filename, encoding="utf-8") as i:
             c = -1
             t = None
             o = None
             for _ in i:
-                if "(hex)" in _ and c == -1:
+                line = _.rstrip("\n")
+                if "(hex)" in line and c == -1:
                     c = 0
-                    t = OuiEntry(_[0:8])
-                    o = Organization(_[18:].strip("\n"))
+                    # prefix is always first 8 chars; organization follows '(hex)'
+                    t = OuiEntry(line[0:8])
+                    org_name = line.split("(hex)", 1)[1].strip()
+                    o = Organization(org_name)
                 if c == 2:
-                    o.street = _.strip()
+                    o.street = line.strip()
                 elif c == 3:
-                    o.district = _.strip()
+                    o.district = line.strip()
                 elif c == 4:
-                    o.country = _.strip()
+                    o.country = line.strip()
                     t.organization = o
                     c = 42
                 if c == 42:
@@ -66,33 +67,42 @@ class OuiEntries(object):
         return lst
 
     def by_mac(self, mac: str) -> Iterator[OuiEntry]:
+        if mac is None:
+            return
+        n_mac = mac.replace('-', ':').upper()
         for e in self.entries:
-            if mac.startswith(e.prefix):
+            if n_mac.startswith(e.prefix):
                 yield e
 
     def by_prefix(self, prefix: str) -> Iterator[OuiEntry]:
+        if prefix is None:
+            return
+        n_prefix = prefix.replace('-', ':').upper()
         for e in self.entries:
-            if e.prefix == prefix:
+            if e.prefix == n_prefix:
                 yield e
 
     def by_organization(self, name: str) -> Iterator[OuiEntry]:
+        if not name:
+            return
+        low = name.lower()
         for e in self.entries:
-            if name.lower() in e.organization.name.lower():
+            if e.organization and e.organization.name and low in e.organization.name.lower():
                 yield e
 
     def by_country_name(self, name: str) -> Iterator[OuiEntry]:
         try:
             return self.by_country_code(countries.search_fuzzy(name)[0].alpha_2)
         except LookupError:
-            return []
+            # empty iterator for unknown country names
+            return iter(())
 
     def by_country_code(self, cc: str) -> Iterator[OuiEntry]:
-        if cc is None:
-            return None
-        if len(cc) != 2:
-            return None  # country code needs to be a length of two
+        if not cc or len(cc) != 2:
+            return
+        ncc = cc.upper()
         for e in self.entries:
-            if e.organization.country == cc:
+            if e.organization and e.organization.country == ncc:
                 yield e
 
     def size(self) -> int:
@@ -100,7 +110,7 @@ class OuiEntries(object):
 
 
 class OUI(object):
-    oui_url: str = "http://standards-oui.ieee.org/oui.txt"
+    oui_url: str = "https://standards-oui.ieee.org/oui.txt"
     outfile: str = None
     debug: bool = False
 
@@ -113,8 +123,14 @@ class OUI(object):
         if not isfile(self.outfile):
             if self.debug:
                 log.debug("downloading {0} to {1}".format(self.oui_url, self.outfile))
-            with open(self.outfile, "w") as o:
-                o.write(get(self.oui_url).content.decode("utf-8"))
+            try:
+                r = get(self.oui_url, timeout=30)
+                r.raise_for_status()
+                with open(self.outfile, "w", encoding="utf-8") as o:
+                    o.write(r.content.decode("utf-8"))
+            except Exception as ex:
+                log.error(f"failed to download OUI list: {ex}")
+                raise
         else:
             if self.debug:
                 log.debug("{0} already exists. not downloading.".format(self.outfile))
