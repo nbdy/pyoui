@@ -29,7 +29,7 @@ dependencies = [
   "loguru==0.7.3",
   "pycountry==24.6.1",
   "tqdm==4.67.3",
-  "rich==14.3.2",
+  "rich==14.3.3",
 ]
 
 [project.urls]
