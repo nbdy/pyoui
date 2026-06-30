@@ -27,7 +27,7 @@ classifiers = [
 dependencies = [
   "requests==2.32.5",
   "loguru==0.7.3",
-  "pycountry==24.6.1",
+  "pycountry==26.2.16",
   "tqdm==4.68.1",
   "rich==15.0.0",
 ]
