@@ -28,7 +28,7 @@ dependencies = [
   "requests==2.34.2",
   "loguru==0.7.3",
   "pycountry==26.2.16",
-  "tqdm==4.68.3",
+  "tqdm==4.68.4",
   "rich==15.0.0",
 ]
 
